@@ -6,12 +6,12 @@ import Login from "../components/Login.vue";
 import Board from "../components/Board.vue";
 import Card from "../components/Card.vue";
 import NotFound from "../components/NotFound.vue";
+import store from '../store/store.js'
 
 const requireAuth = (to, from, next) => {
-  const isAuth = localStorage.getItem("token");
   //로그인후 가려고했던 페이지에 돌아갈수 있도록 리턴패스를 지정하다. 쿼리 문자열이기때문에 인코딩해줄 필요가 있다.
   const loginPath = `/login?rPath=${encodeURIComponent(to.path)}`;
-  isAuth ? next() : next(loginPath);
+  store.getters.isAuth ? next() : next(loginPath);
 };
 
 //1.라우팅의 우선순위는 선언순이다.

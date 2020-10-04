@@ -17,8 +17,7 @@
   </div>
 </template>
 <script>
-
-import {auth, setAuthInHeader} from '../api/api.js'
+import {mapActions} from 'vuex'
 
 export default {
     data() {
@@ -38,14 +37,14 @@ export default {
         }
     },
     methods: {
+      ...mapActions([
+        'LOGIN'
+      ]),
         onSubmit() {
-            console.log(this.email, this.password)
-            //프로미스 기반이기에, 성공시 then함수로 받는다.
-            auth.login(this.email, this.password)
-            .then(data => {
+          console.log(this.email, this.password)
+          this.LOGIN({email: this.email, password: this.password}).then(() => {
+               //프로미스 기반이기에, 성공시 then함수로 받는다.
                 //console.log(data);
-                localStorage.setItem('token', data.accessToken)
-                setAuthInHeader(data.accessToken)
                 this.$router.push(this.rPath)
             })
             .catch(err => {

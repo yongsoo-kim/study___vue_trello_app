@@ -4,26 +4,27 @@
       <router-link to="/">Trelno</router-link>
     </div>
     <div class="header-auth">
-      <a v-if="isAuthenicated" href="" @click.prevent="logout">Logout</a>
+      <a v-if="isAuth" href="" @click.prevent="logout">Logout</a>
       <router-link v-else to="/login">Login</router-link>
     </div>
   </nav>
 </template>
 
 <script>
-import { setAuthInHeader } from '../api/api.js';
+import {mapGetters, mapMutations} from 'vuex'
+
 export default {
   computed: {
-    isAuthenicated() {
-      //Converts Object to boolean by using double(!!)
-      return !!localStorage.getItem('token')
-    }
+    ...mapGetters([
+      'isAuth'
+    ])
   }, 
   methods: {
+    ...mapMutations([
+      'LOGOUT'
+    ]),
     logout() {
-      //로그인 토큰을 삭제.
-      delete localStorage.token
-      setAuthInHeader(null);
+      this.LOGOUT()
       this.$router.push('/login')
     }
   }
