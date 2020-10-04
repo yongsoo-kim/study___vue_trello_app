@@ -54,8 +54,9 @@ export default {
     addBoard() {
       // this.$emit('close')
       this.SET_IS_ADD_BOARD(false)
-      this.ADD_BOARD({title: this.input}).then(() => {
-        this.FETCH_BOARDS()
+      this.ADD_BOARD({title: this.input}).then(({id}) => {
+        this.$router.push(`/b/${id}`)
+        //this.FETCH_BOARDS()
       })
       //this.$emit('submit')
       //this.$store.dispatch('ADD_BOARD', {title: this.input})
