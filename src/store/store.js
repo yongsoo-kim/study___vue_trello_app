@@ -1,55 +1,20 @@
 import VueX from "vuex";
 import Vue from "vue";
-import * as api from "../api/api.js";
+//import * as api from "../api/api.js";
+import state from './state.js'
+import getters from './getters.js'
+import mutations from './mutations.js'
+import actions from './actions.js'
 
 Vue.use(VueX);
 
 const store = new VueX.Store({
-  state: {
-    isAddBoard: false,
-    boards:[],
-    token: null
-  },
-  getters: {
-    isAuth (state) {
-      return !!state.token
-    }
-  },
+  state,
+  getters,
   //동기적인 로직은 mutations로!
-  mutations: {
-    SET_IS_ADD_BOARD(state, toggle) {
-      state.isAddBoard = toggle;
-    },
-    SET_BOARDS(state, boards){
-      state.boards = boards
-    },
-    LOGIN(state, token) {
-      if (!token) return
-      state.token = token
-      localStorage.setItem('token', token)
-      api.setAuthInHeader(token)
-    },
-    LOGOUT (state) {
-      state.token = null
-      delete localStorage.token
-      api.setAuthInHeader(null)
-    }
-  },
+  mutations,
   //비동기적은 로직은 action으로!
-  actions: {
-    ADD_BOARD(_, { title }) {
-      return api.board.create(title);
-    },
-    FETCH_BOARDS({commit}){
-      return api.board.fetch().then(data => {
-        commit('SET_BOARDS', data.list)
-      })
-    },
-    LOGIN ({commit}, {email, password}){
-      return api.auth.login(email, password)
-      .then(({accessToken}) => commit('LOGIN', accessToken))
-    }
-  },
+  actions
 });
 
 //앱이  구동될때  토큰정보를 처리하는 로직
