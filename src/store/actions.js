@@ -20,6 +20,10 @@ const actions =  {
             commit('SET_BOARD', data.item)
         })
 
+    },
+    ADD_CARD({dispatch, state}, {title,listId,pos}){
+      return api.card.create(title,listId,pos)
+      .then(() => dispatch('FETCH_BOARD',{id: state.board.id}))
     }
   }
 

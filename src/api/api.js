@@ -20,28 +20,35 @@ const request = (method, url, data) => {
     .catch((error) => {
       // destructuring....This is same as .....const status = error.response.status;
       const { status } = error.response;
-      if (status === UNAUTHORIZED) onUnauthorized()
+      if (status === UNAUTHORIZED) onUnauthorized();
       throw error.response;
     });
 };
 
-
-export const setAuthInHeader = token => {
-  axios.defaults.headers.common['Authorization'] = token ? `Bearer ${token}` : null
-}
+export const setAuthInHeader = (token) => {
+  axios.defaults.headers.common["Authorization"] = token
+    ? `Bearer ${token}`
+    : null;
+};
 
 export const board = {
   fetch(id) {
     return id ? request("get", `/boards/${id}`) : request("get", "/boards");
   },
   create(title) {
-    return request('post','/boards', {title})
-  }
+    return request("post", "/boards", { title });
+  },
 };
 
 export const auth = {
   login(email, password) {
-    return request("post", "/login", {email, password});
+    return request("post", "/login", { email, password });
+  },
+};
+
+export const card = {
+  create(title, listId, pos) {
+    return request("post", "/cards", { title, listId, pos });
   },
 };
 

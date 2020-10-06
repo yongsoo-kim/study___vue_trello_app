@@ -33,7 +33,7 @@ const router = new VueRouter({
       path: "/b/:bid",
       component: Board, 
       beforeEnter: requireAuth,
-      children: [{ path: "c/:cid", component: Card, beforeEnter: requireAuth }],
+      children: [{ path: "c/:cid", component: Card}],
     },
     { 
       path: "*", 
