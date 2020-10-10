@@ -45,11 +45,26 @@ export default {
     ...mapActions([
       'ADD_CARD'
     ]),
+    newCardPos(){
+
+      //현재 리스트 정보 획득 -> 카드 리스트 획득.
+      const curList = this.$store.state.board.lists.filter(l => l.id === this.listId)[0]
+      if(!curList) return 65535
+      const {cards} = curList
+      if(!cards.length) return 65535
+      //맨 마지막에 있는 카드 정보를 가져온후, 그 카드의 2배 값을 설정해 리턴한다.
+      return cards[cards.length - 1].pos * 2
+
+
+    },
     onSubmit() {
       console.log("submit@");
       if(this.invalidInput) return
       const {inputTitle, listId} = this
-      this.ADD_CARD({title: inputTitle, listId})
+      const pos = this.newCardPos()
+
+
+      this.ADD_CARD({title: inputTitle, listId, pos})
         .finally(()=> this.inputTitle="")
     },
     setupClickOutside(el) {

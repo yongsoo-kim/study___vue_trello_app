@@ -3,11 +3,15 @@
     <div class="board-wrapper">
       <div class="board">
         <div class="board-header">
-          <span class="board-title">{{board.title}}</span>
+          <span class="board-title">{{ board.title }}</span>
         </div>
         <div class="list-section-wrapper">
           <div class="list-section">
-            <div class="list-wrapper" v-for="list in board.lists" :key="list.pos">
+            <div
+              class="list-wrapper"
+              v-for="list in board.lists"
+              :key="list.pos"
+            >
               <List :data="list" />
             </div>
           </div>
@@ -18,25 +22,31 @@
   </div>
 </template>
 
-
 <script>
-import {mapState, mapActions} from 'vuex'
-import List from './List.vue'
+import { mapState, mapActions } from "vuex";
+import List from "./List.vue";
+import dragger from "../utils/dragger.js";
 
 export default {
   components: {
-    List
+    List,
   },
   data() {
     return {
       bid: 0,
       loading: true,
+      cDragger: null,
     };
+  },
+  //자식컴포넌트가 전부 로딩된후에, 카드의 드래그앤 드롭이 활성화될수있도록 updated훅을 쓴다.
+  updated() {
+    //시작시 불필요한 드래귤라 카드 삭제.
+    this.setCardDragabble();
   },
   computed: {
     ...mapState({
-      board: 'board'
-    })
+      board: "board",
+    }),
   },
 
   //보드가 생성될때 불리는 hook -> created
@@ -44,13 +54,12 @@ export default {
     this.fetchData();
   },
   methods: {
-    ...mapActions([
-      'FETCH_BOARD'  
-    ]),
+    ...mapActions(["FETCH_BOARD", "UPDATE_CARD"]),
     fetchData() {
       this.loading = true;
-      this.FETCH_BOARD({id: this.$route.params.bid})
-      .then(() => this.loading = false)
+      this.FETCH_BOARD({ id: this.$route.params.bid }).then(
+        () => (this.loading = false)
+      );
       //API응답 받기를 흉내내기 위해 setTimeout을 사용해본다.
       // setTimeout(() => {
       //   //this.$route를 통해 라우팅 정보 획득가능.
@@ -59,12 +68,45 @@ export default {
       //   this.loading = false;
       // }, 500);
     },
+    setCardDragabble() {
+      if (this.cDragger) this.cDragger.destroy();
+      this.cDragger = dragger.init(
+        Array.from(this.$el.querySelectorAll(".card-list"))
+      );
+
+      this.cDragger.on("drop", (el, wrapper, target, siblings) => {
+        console.log(el, wrapper, target, siblings);
+        const targetCard = {
+          //CardItem컴포넌트의 data-card-id로부터 cardId를 받는다.
+          id: el.dataset.cardId * 1,
+          pos: 65535,
+        };
+
+        const { prev, next } = dragger.sibling({
+          el,
+          wrapper,
+          candidates: Array.from(wrapper.querySelectorAll(".card-item")),
+          type: "card",
+        });
+
+        //prev카드와 next카드를 찾았다.
+
+        //맨앞에 카드가 있을경우.
+        if (!prev && next) targetCard.pos = next.pos / 2;
+        //제일 뒤에 카드가 있을 경우.
+        else if (!next && prev) targetCard.pos = prev.pos * 2;
+        //
+        else if (prev && next) targetCard.pos = (prev.pos + next.pos) / 2;
+        console.log(targetCard);
+
+        this.UPDATE_CARD(targetCard);
+      });
+    },
   },
 };
 </script>
 
 <style>
-
 .board-wrapper {
   position: absolute;
   top: 0;
@@ -83,8 +125,8 @@ export default {
   margin: 0;
   height: 32px;
   line-height: 32px;
-} 
-.board-header input[type=text] {
+}
+.board-header input[type="text"] {
   width: 200px;
 }
 .board-header-btn {
@@ -97,7 +139,7 @@ export default {
 }
 .board-header-btn:hover,
 .board-header-btn:focus {
-  background-color: rgba(0,0,0,.15);
+  background-color: rgba(0, 0, 0, 0.15);
   cursor: pointer;
 }
 .board-title {
@@ -139,6 +181,4 @@ export default {
   background-color: #fff !important;
   transform: rotate(3deg) !important;
 }
-
-
 </style>

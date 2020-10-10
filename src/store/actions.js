@@ -1,5 +1,6 @@
 
 import * as api from "../api/api.js";
+// import state from "./state.js";
 
   //비동기적은 로직은 action으로!
 const actions =  {
@@ -24,7 +25,19 @@ const actions =  {
     ADD_CARD({dispatch, state}, {title,listId,pos}){
       return api.card.create(title,listId,pos)
       .then(() => dispatch('FETCH_BOARD',{id: state.board.id}))
+    },
+    FETCH_CARD({commit}, {id}){
+      return api.card.fetch(id).then(data => {
+        commit('SET_CARD', data.item)
+      })
+    },
+    UPDATE_CARD({dispatch, state}, {id, title, description, pos, listId}){
+      //카드 정보 갱신후 카드화면을 새로고침해준다.
+      return api.card.update(id, {title, description, pos, listId})
+      .then(() => dispatch('FETCH_BOARD',{id: state.board.id}))
+
     }
+
   }
 
 

@@ -5,6 +5,7 @@ const state = {
   boards: [],
   board: {} ,
   token: null,
+  card: {}
 }
 
 
