@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapMutations,  mapActions } from "vuex";
 import List from "./List.vue";
 import dragger from "../utils/dragger.js";
 
@@ -51,22 +51,20 @@ export default {
 
   //보드가 생성될때 불리는 hook -> created
   created() {
-    this.fetchData();
+    //fetchData가 promise기반이라야만 then을 쓸수있다.
+    this.fetchData().then(() => {
+      this.SET_THEME(this.board.bgColor)
+    })
   },
   methods: {
     ...mapActions(["FETCH_BOARD", "UPDATE_CARD"]),
+    ...mapMutations(["SET_THEME"]),
     fetchData() {
       this.loading = true;
-      this.FETCH_BOARD({ id: this.$route.params.bid }).then(
+      return this.FETCH_BOARD({ id: this.$route.params.bid }).then(
         () => (this.loading = false)
       );
-      //API응답 받기를 흉내내기 위해 setTimeout을 사용해본다.
-      // setTimeout(() => {
-      //   //this.$route를 통해 라우팅 정보 획득가능.
-      //   //console.log(this.$route.params.bid);
-      //   this.bid = this.$route.params.bid;
-      //   this.loading = false;
-      // }, 500);
+
     },
     setCardDragabble() {
       if (this.cDragger) this.cDragger.destroy();
@@ -101,6 +99,13 @@ export default {
 
         this.UPDATE_CARD(targetCard);
       });
+            //API응답 받기를 흉내내기 위해 setTimeout을 사용해본다.
+      // setTimeout(() => {
+      //   //this.$route를 통해 라우팅 정보 획득가능.
+      //   //console.log(this.$route.params.bid);
+      //   this.bid = this.$route.params.bid;
+      //   this.loading = false;
+      // }, 500);
     },
   },
 };

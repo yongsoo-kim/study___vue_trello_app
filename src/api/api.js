@@ -55,6 +55,9 @@ export const card = {
   },
   update(id, payload){
     return request('put', `/cards/${id}`, payload)
+  },
+  delete(id) {
+    return request('delete', `/cards/${id}`)
   }
 };
 

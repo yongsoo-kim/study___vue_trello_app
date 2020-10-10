@@ -11,14 +11,25 @@
 </template>
 
 <script>
-import {mapGetters, mapMutations} from 'vuex'
+import {mapState,mapGetters, mapMutations} from 'vuex'
 
 export default {
   computed: {
+    ...mapState({
+      navbarColor: 'navbarColor',
+      bodyColor: 'bodyColor'
+    }),
     ...mapGetters([
       'isAuth'
     ])
-  }, 
+  },
+  watch: {
+    //updateTheme이 실질적으로 전체 보드배경 색상을 변화시키고 있기에, 여기에서  스테이트값과 연동되어있는 bavbarColor를 감시해서, 그 값이 변경되면 updateTheme을 호출해 보드배경 색상을 변경한다.
+    navbarColor: 'updateTheme'
+  },
+  mounted() {
+    this.updateTheme()
+  },
   methods: {
     ...mapMutations([
       'LOGOUT'
@@ -26,6 +37,17 @@ export default {
     logout() {
       this.LOGOUT()
       this.$router.push('/login')
+    },
+    updateTheme(){
+      //$el로 현재컴포넌트의 navbar엘레멘트를 가지고 올수있다.
+      this.$el.style.backgroundColor = this.navbarColor
+      //현재 컴포넌트가 아닌 dom으로 부터 가져올때는, document 이방식을 쓴다.
+      
+      const body = document.querySelector('body')
+      if (body) body.style.backgroundColor = this.bodyColor
+      //TODO: 이부분 필요하나?
+      // const container = document.querySelector('.container')
+      // if (container) container.style.backgroundColor = this.bodyColor
     }
   }
 

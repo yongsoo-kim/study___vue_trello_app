@@ -50,6 +50,8 @@ export default {
   },
   created() {
     this.fetchData();
+    //배경화면 관련
+    this.SET_THEME()
   },
   updated() {
     // 첫실행은 모든 화면이 렌더링된 후 실행합니다. 이후 'data'에 변화가 감지되면 이hook도 움직입니다.
@@ -58,7 +60,7 @@ export default {
     });
   },
   methods: {
-    ...mapMutations(["SET_IS_ADD_BOARD"]),
+    ...mapMutations(["SET_IS_ADD_BOARD", "SET_THEME"]),
     ...mapActions(["FETCH_BOARDS"]),
     fetchData() {
       this.loading = true;
