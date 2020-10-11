@@ -50,7 +50,7 @@ export default {
   },
   created() {
     this.fetchData();
-    //배경화면 관련
+    //배경화면 관련. 아무 색깔 없는 원래 디폴드 색상으로 바꾼다.
     this.SET_THEME()
   },
   updated() {

@@ -6,6 +6,13 @@
     </div>
     <ul class="menu-list">
       <li><a href="" @click.prevent="onDeleteBoard">Delete Board</a></li>
+      <li>Change Background</li>
+      <div class="color-picker">
+        <a href="" data-value="rgb(0, 121,191)" @click.prevent="onChangeTheme"></a>
+        <a href="" data-value="rgb(210, 144, 52)" @click.prevent="onChangeTheme"></a>
+        <a href="" data-value="rgb(81, 152, 57)" @click.prevent="onChangeTheme"></a>
+        <a href="" data-value="rgb(176, 70, 50)" @click.prevent="onChangeTheme"></a>
+      </div>
     </ul>
   </div>
 </template>
@@ -20,12 +27,22 @@ export default {
         board: 'board'
     })
   },
-  
+
+  //부모 컴포넌트에 올라갈 시점에, 조작이 가능해지므로 mounted hook을 사용한다.
+  mounted(){
+    Array.from(this.$el.querySelectorAll('.color-picker a')).forEach(el => {
+      el.style.backgroundColor = el.dataset.value
+    })
+  },
   methods: {
     ...mapMutations([
-      'SET_IS_SHOW_BOARD_SETTINGS'
+      'SET_IS_SHOW_BOARD_SETTINGS', 
+      'SET_THEME'
     ]),
-    ...mapActions(['DELETE_BOARD']),
+    ...mapActions([
+      'DELETE_BOARD',
+      'UPDATE_BOARD'
+      ]),
     onClose() {
       this.SET_IS_SHOW_BOARD_SETTINGS(false)
     },
@@ -36,6 +53,14 @@ export default {
         this.DELETE_BOARD({id: this.board.id})
         .then(() => this.SET_IS_SHOW_BOARD_SETTINGS(false))
         .then(() => this.$router.push('/'))
+    },
+    //파라메터 안에 el을 두게되면 클릭할때 클릭되어진 엘레멘트가 변수로 들어와진다.
+    onChangeTheme(el){
+      const id = this.board.id
+      const bgColor = el.target.dataset.value
+      this.UPDATE_BOARD({id, bgColor})
+        .then(() => this.SET_THEME(bgColor))
+      
     }
   }
 }

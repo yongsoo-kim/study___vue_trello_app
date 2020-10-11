@@ -24,8 +24,8 @@ export default {
     ])
   },
   watch: {
-    //updateTheme이 실질적으로 전체 보드배경 색상을 변화시키고 있기에, 여기에서  스테이트값과 연동되어있는 bavbarColor를 감시해서, 그 값이 변경되면 updateTheme을 호출해 보드배경 색상을 변경한다.
-    navbarColor: 'updateTheme'
+    //updateTheme이 실질적으로 전체 보드배경 색상을 변화시키고 있기에, 여기에서  스테이트값과 연동되어있는 bodyColor를 감시해서, 그 값이 변경되면 updateTheme을 호출해 보드배경 색상을 변경한다.
+    bodyColor: 'updateTheme'
   },
   mounted() {
     this.updateTheme()
