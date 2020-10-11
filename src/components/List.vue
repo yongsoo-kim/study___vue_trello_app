@@ -1,17 +1,28 @@
 <template>
   <div class="list">
     <div class="list-header">
-      <div class="list-header-title">{{data.title}}</div>
+      <input
+        v-if="isEditTitle"
+        class="form-control input-title"
+        type="text"
+        ref="inputTitle"
+        v-model="inputTitle" 
+        @blur="onBlurTitle"
+        @keyup.enter="onSubmitTitle"
+      />
+      <div v-else class="list-header-title" @click.prevent="onClickTitle">
+        {{ data.title }}
+      </div>
     </div>
     <div class="card-list">
       <CardItem v-for="card in data.cards" :key="card.id" :data="card" />
     </div>
 
     <div v-if="isAddCard">
-      <AddCard :list-id="data.id" @close="isAddCard=false"/>
+      <AddCard :list-id="data.id" @close="isAddCard = false" />
     </div>
     <div v-else>
-      <a class="add-card-btn" href="" @click.prevent="isAddCard=true">
+      <a class="add-card-btn" href="" @click.prevent="isAddCard = true">
         &plus; Add a card...
       </a>
     </div>
@@ -19,18 +30,53 @@
 </template>
 
 <script>
-import AddCard from './AddCard.vue'
-import CardItem from './CardItem.vue'
+import {mapActions} from 'vuex'
+import AddCard from "./AddCard.vue";
+import CardItem from "./CardItem.vue";
 
 export default {
-  components: {AddCard, CardItem},
-  props: ['data'],
+  components: { AddCard, CardItem },
+  props: ["data"],
+  created() {
+    this.inputTitle = this.data.title;
+  },
   data() {
     return {
-      isAddCard: false
+      isAddCard: false,
+      isEditTitle: false,
+      inputTitle: "",
+    };
+  },
+  methods: {
+    ...mapActions([
+      'UPDATE_LIST'
+    ]),
+    onClickTitle() {
+      this.isEditTitle = true;
+      //nextTick을 쓰면 다음 렌더링사이클때 실행된다.
+      this.$nextTick(() => this.$refs.inputTitle.focus());
+    },
+    onBlurTitle(){
+      this.isEditTitle = false
+      this.inputTitle = this.data.title
+    },
+    onSubmitTitle(){
+      this.inputTitle = this.inputTitle.trim()
+      if(!this.inputTitle) return
+
+      //API를 콜하기위한 파라메터를 얻어온다.
+      const id = this.data.id
+      const title = this.inputTitle
+
+      if (title == this.data.title) return
+      this.UPDATE_LIST({id, title})
+      .then(() => this.isEditTitle = false)
+
+
     }
-  }
-}
+
+  },
+};
 </script>
 
 <style>
@@ -71,10 +117,10 @@ export default {
   flex: 1 1 auto;
   overflow-y: scroll;
 }
-.empty-card-item   {
+.empty-card-item {
   height: 10px;
   width: 100%;
-  background-color: rgba(0,0,0, 0);
+  background-color: rgba(0, 0, 0, 0);
 }
 .add-card-btn {
   flex: 0 0 auto;
@@ -85,6 +131,6 @@ export default {
 }
 .add-card-btn:focus,
 .add-card-btn:hover {
-  background-color: rgba(0,0,0, .1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 </style>

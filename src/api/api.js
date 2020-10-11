@@ -38,12 +38,12 @@ export const board = {
   create(title) {
     return request("post", "/boards", { title });
   },
-  update(id, payload){
-    return request('put', `/boards/${id}`, payload)
+  update(id, payload) {
+    return request("put", `/boards/${id}`, payload);
   },
   delete(id) {
-    return request('delete', `/boards/${id}`)
-  }
+    return request("delete", `/boards/${id}`);
+  },
 };
 
 export const auth = {
@@ -57,13 +57,22 @@ export const card = {
     return request("post", "/cards", { title, listId, pos });
   },
   fetch(id) {
-    return request('get', `/cards/${id}`)
+    return request("get", `/cards/${id}`);
   },
-  update(id, payload){
-    return request('put', `/cards/${id}`, payload)
+  update(id, payload) {
+    return request("put", `/cards/${id}`, payload);
   },
   delete(id) {
-    return request('delete', `/cards/${id}`)
+    return request("delete", `/cards/${id}`);
+  },
+};
+
+export const list = {
+  create(payload) {
+    return request("post", "/lists", payload);
+  },
+  update(id, payload) {
+    return request('put',`/lists/${id}`, payload)
   }
 };
 
