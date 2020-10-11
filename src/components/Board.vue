@@ -3,8 +3,25 @@
     <div class="board-wrapper">
       <div class="board">
         <div class="board-header">
-          <span class="board-title">{{ board.title }}</span>
-          <a class="board-header-btn show-menu" href="" @click.prevent="onShowSettings">...Show Menu</a>
+          <!-- 입력화면에서 커서를 떼었을때, 혹은 엔터를 쳤을때등에는 API를 이용해 타이틀을 갱신한다. -->
+          <input
+            class="form-control"
+            v-if="isEditTitle"
+            type="text"
+            v-model="inputTitle"
+            @blur="onSubmitTitle" 
+            @keyup.enter="onSubmitTitle" 
+            ref="inputTitle"
+          />
+          <span v-else class="board-title" @click="onClickTitle">{{
+            board.title
+          }}</span>
+          <a
+            class="board-header-btn show-menu"
+            href=""
+            @click.prevent="onShowSettings"
+            >...Show Menu</a
+          >
         </div>
         <div class="list-section-wrapper">
           <div class="list-section">
@@ -19,27 +36,29 @@
         </div>
       </div>
     </div>
-    <BoardSettings v-if="isShowBoardSettings"/>
+    <BoardSettings v-if="isShowBoardSettings" />
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-import { mapState, mapMutations,  mapActions } from "vuex";
+import { mapState, mapMutations, mapActions } from "vuex";
 import List from "./List.vue";
-import BoardSettings from './BoardSettings.vue'
+import BoardSettings from "./BoardSettings.vue";
 import dragger from "../utils/dragger.js";
 
 export default {
   components: {
     List,
-    BoardSettings
+    BoardSettings,
   },
   data() {
     return {
       bid: 0,
       loading: true,
       cDragger: null,
+      isEditTitle: false,
+      inputTitle: "",
     };
   },
   //자식컴포넌트가 전부 로딩된후에, 카드의 드래그앤 드롭이 활성화될수있도록 updated훅을 쓴다.
@@ -50,7 +69,7 @@ export default {
   computed: {
     ...mapState({
       board: "board",
-      isShowBoardSettings: 'isShowBoardSettings'
+      isShowBoardSettings: "isShowBoardSettings",
     }),
   },
 
@@ -58,19 +77,19 @@ export default {
   created() {
     //fetchData가 promise기반이라야만 then을 쓸수있다.
     this.fetchData().then(() => {
-      this.SET_THEME(this.board.bgColor)
-    })
-    this.SET_IS_SHOW_BOARD_SETTINGS(false)
+      this.inputTitle = this.board.title;
+      this.SET_THEME(this.board.bgColor);
+    });
+    this.SET_IS_SHOW_BOARD_SETTINGS(false);
   },
   methods: {
-    ...mapActions(["FETCH_BOARD", "UPDATE_CARD"]),
+    ...mapActions(["FETCH_BOARD", "UPDATE_CARD","UPDATE_BOARD"]),
     ...mapMutations(["SET_THEME", "SET_IS_SHOW_BOARD_SETTINGS"]),
     fetchData() {
       this.loading = true;
       return this.FETCH_BOARD({ id: this.$route.params.bid }).then(
         () => (this.loading = false)
       );
-
     },
     setCardDragabble() {
       if (this.cDragger) this.cDragger.destroy();
@@ -105,7 +124,7 @@ export default {
 
         this.UPDATE_CARD(targetCard);
       });
-            //API응답 받기를 흉내내기 위해 setTimeout을 사용해본다.
+      //API응답 받기를 흉내내기 위해 setTimeout을 사용해본다.
       // setTimeout(() => {
       //   //this.$route를 통해 라우팅 정보 획득가능.
       //   //console.log(this.$route.params.bid);
@@ -113,8 +132,27 @@ export default {
       //   this.loading = false;
       // }, 500);
     },
-    onShowSettings(){
-      this.SET_IS_SHOW_BOARD_SETTINGS(true)
+    onShowSettings() {
+      this.SET_IS_SHOW_BOARD_SETTINGS(true);
+    },
+    onClickTitle() {
+      this.isEditTitle = true;
+      //상태변경이 너무빨라 DOM이 검색이 안되는 경우가 있다.
+      //이럴경우에는 Vue.js에서 데이터갱신 후 UI까지 완료한 뒤에 nextTick에 있는 함수를 최종적으로 수행하도록 하면 된다.(일부러 실행을 조금 늦춤.)
+      this.$nextTick(() => this.$refs.inputTitle.focus());
+    },
+    onSubmitTitle(){
+      this.isEditTitle = false
+      this.inputTitle = this.inputTitle.trim()
+      if(!this.inputTitle) return
+
+      const id = this.board.id
+      const title = this.inputTitle
+
+      //기존 타이틀과 새로 입력된 타이틀이 똑같은 값을 가지면, API콜을 하지 않는다.
+      if (title === this.board.title) return
+
+      this.UPDATE_BOARD({id, title})
     }
   },
 };
