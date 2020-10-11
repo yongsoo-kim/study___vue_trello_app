@@ -111,7 +111,7 @@ export default {
         const targetList = {
           //CardItem컴포넌트의 data-card-id로부터 cardId를 받는다.
           id: el.dataset.cardId * 1,
-          listId: el.dataset.listId * 1,
+          listId: wrapper.dataset.listId * 1,
           pos: 65535,
         };
 
