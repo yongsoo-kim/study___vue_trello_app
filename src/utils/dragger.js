@@ -3,11 +3,11 @@ import 'dragula/dist/dragula.css'
 
 // 드래그 앤 드롭의 모듈(Wrapping)화
 const dragger = {
-    init(container){
+    init(container, options){
 
         //유사배열을 ...Array.from을 이용해 배열로 바꾼다.
         //ex) ...Array.from(this.$el.querySelectorAll('.card-list'))
-        return dragula([...container])
+        return dragula([...container], options)
     },
     sibling({el, wrapper, candidates, type}){
         console.log(el, wrapper);

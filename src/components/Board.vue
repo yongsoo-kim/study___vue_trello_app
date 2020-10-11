@@ -9,8 +9,8 @@
             v-if="isEditTitle"
             type="text"
             v-model="inputTitle"
-            @blur="onSubmitTitle" 
-            @keyup.enter="onSubmitTitle" 
+            @blur="onSubmitTitle"
+            @keyup.enter="onSubmitTitle"
             ref="inputTitle"
           />
           <span v-else class="board-title" @click="onClickTitle">{{
@@ -28,7 +28,8 @@
             <div
               class="list-wrapper"
               v-for="list in board.lists"
-              :key="list.pos"
+              :key="list.pos" 
+              :data-list-id="list.id"
             >
               <List :data="list" />
             </div>
@@ -56,21 +57,21 @@ export default {
     List,
     AddList,
     BoardSettings,
-    
   },
   data() {
     return {
       bid: 0,
       loading: true,
       cDragger: null,
+      lDragger: null,
       isEditTitle: false,
       inputTitle: "",
     };
   },
   //자식컴포넌트가 전부 로딩된후에, 카드의 드래그앤 드롭이 활성화될수있도록 updated훅을 쓴다.
   updated() {
-    //시작시 불필요한 드래귤라 카드 삭제.
     this.setCardDragabble();
+    this.setListDragabble();
   },
   computed: {
     ...mapState({
@@ -89,7 +90,7 @@ export default {
     this.SET_IS_SHOW_BOARD_SETTINGS(false);
   },
   methods: {
-    ...mapActions(["FETCH_BOARD", "UPDATE_CARD","UPDATE_BOARD"]),
+    ...mapActions(["FETCH_BOARD", "UPDATE_CARD", "UPDATE_BOARD","UPDATE_LIST"]),
     ...mapMutations(["SET_THEME", "SET_IS_SHOW_BOARD_SETTINGS"]),
     fetchData() {
       this.loading = true;
@@ -98,16 +99,19 @@ export default {
       );
     },
     setCardDragabble() {
+      //시작시 불필요한 드래귤라 인스턴스 삭제.
       if (this.cDragger) this.cDragger.destroy();
+
       this.cDragger = dragger.init(
         Array.from(this.$el.querySelectorAll(".card-list"))
       );
 
       this.cDragger.on("drop", (el, wrapper, target, siblings) => {
         console.log(el, wrapper, target, siblings);
-        const targetCard = {
+        const targetList = {
           //CardItem컴포넌트의 data-card-id로부터 cardId를 받는다.
           id: el.dataset.cardId * 1,
+          listId: el.dataset.listId * 1,
           pos: 65535,
         };
 
@@ -121,14 +125,14 @@ export default {
         //prev카드와 next카드를 찾았다.
 
         //맨앞에 카드가 있을경우.
-        if (!prev && next) targetCard.pos = next.pos / 2;
+        if (!prev && next) targetList.pos = next.pos / 2;
         //제일 뒤에 카드가 있을 경우.
-        else if (!next && prev) targetCard.pos = prev.pos * 2;
+        else if (!next && prev) targetList.pos = prev.pos * 2;
         //
-        else if (prev && next) targetCard.pos = (prev.pos + next.pos) / 2;
-        console.log(targetCard);
+        else if (prev && next) targetList.pos = (prev.pos + next.pos) / 2;
+        console.log(targetList);
 
-        this.UPDATE_CARD(targetCard);
+        this.UPDATE_CARD(targetList);
       });
       //API응답 받기를 흉내내기 위해 setTimeout을 사용해본다.
       // setTimeout(() => {
@@ -137,6 +141,48 @@ export default {
       //   this.bid = this.$route.params.bid;
       //   this.loading = false;
       // }, 500);
+    },
+
+    setListDragabble() {
+      //시작시 불필요한 드래귤라 인스턴스 삭제.
+      if (this.lDragger) this.lDragger.destroy();
+
+      //AddList컴포넌트도 drag & drop이 되어버리는 상황이 발생하므로, 콜백함수로 옵션을 주어 'list'로 시작하지 않는 경우에만 invalid를 적용함.
+      //이번 경우에는, add-list가 해당됨.
+      const options = {
+        invalid: (el, handle) => !/^list/.test(handle.className)
+      }
+
+      this.lDragger = dragger.init(
+        //v-for로 순회하는 리스트는 list-wrapper, 그것을 감싸는 wrapper는 list-section!
+        Array.from(this.$el.querySelectorAll(".list-section")), options
+      );
+      this.lDragger.on("drop", (el, wrapper, target, siblings) => {
+        console.log(el, wrapper, target, siblings);
+        const targetList = {
+          id: el.dataset.listId * 1,
+          pos: 65535,
+        };
+
+        const { prev, next } = dragger.sibling({
+          el,
+          wrapper,
+          candidates: Array.from(wrapper.querySelectorAll(".list")),
+          type: "list",
+        });
+
+        //prev카드와 next카드를 찾았다.
+
+        //맨앞에 카드가 있을경우.
+        if (!prev && next) targetList.pos = next.pos / 2;
+        //제일 뒤에 카드가 있을 경우.
+        else if (!next && prev) targetList.pos = prev.pos * 2;
+        //
+        else if (prev && next) targetList.pos = (prev.pos + next.pos) / 2;
+        console.log(targetList);
+
+        this.UPDATE_LIST(targetList);
+      });
     },
     onShowSettings() {
       this.SET_IS_SHOW_BOARD_SETTINGS(true);
@@ -147,19 +193,19 @@ export default {
       //이럴경우에는 Vue.js에서 데이터갱신 후 UI까지 완료한 뒤에 nextTick에 있는 함수를 최종적으로 수행하도록 하면 된다.(일부러 실행을 조금 늦춤.)
       this.$nextTick(() => this.$refs.inputTitle.focus());
     },
-    onSubmitTitle(){
-      this.isEditTitle = false
-      this.inputTitle = this.inputTitle.trim()
-      if(!this.inputTitle) return
+    onSubmitTitle() {
+      this.isEditTitle = false;
+      this.inputTitle = this.inputTitle.trim();
+      if (!this.inputTitle) return;
 
-      const id = this.board.id
-      const title = this.inputTitle
+      const id = this.board.id;
+      const title = this.inputTitle;
 
       //기존 타이틀과 새로 입력된 타이틀이 똑같은 값을 가지면, API콜을 하지 않는다.
-      if (title === this.board.title) return
+      if (title === this.board.title) return;
 
-      this.UPDATE_BOARD({id, title})
-    }
+      this.UPDATE_BOARD({ id, title });
+    },
   },
 };
 </script>
