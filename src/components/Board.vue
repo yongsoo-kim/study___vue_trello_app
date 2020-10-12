@@ -249,7 +249,20 @@ export default {
 .board-title {
   font-weight: 700;
   font-size: 18px;
+
+  border-radius: 5px;
+  padding: 8px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+
 }
+.board-title:hover,
+.board-title:focus {
+  background-color: rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+
 .show-menu {
   font-size: 14px;
   position: absolute;
@@ -285,4 +298,5 @@ export default {
   background-color: #fff !important;
   transform: rotate(3deg) !important;
 }
+
 </style>

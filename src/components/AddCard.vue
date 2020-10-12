@@ -5,7 +5,8 @@
       <input
         class="form-control"
         type="text"
-        v-model="inputTitle"
+        v-model="inputTitle" 
+        @blur="restore"
         ref="inputText"
       />
       <button class="btn btn-success" type="submit" :disabled="invalidInput">
@@ -74,6 +75,9 @@ export default {
         this.$emit("close");
       });
     },
+    restore(){
+      this.$emit('close')
+    }
   },
 };
 </script>

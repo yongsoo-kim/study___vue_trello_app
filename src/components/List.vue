@@ -105,6 +105,16 @@ export default {
   font-weight: 700;
   padding-left: 8px;
   line-height: 30px;
+  
+  border-radius: 5px;
+  transition: all 0.3s;
+}
+
+
+.list-header-title:hover,
+.list-header-title:focus {
+  background-color: rgba(0, 0, 0, 0.15);
+  cursor: pointer;
 }
 .input-title {
   width: 90%;

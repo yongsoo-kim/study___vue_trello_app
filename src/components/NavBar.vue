@@ -1,7 +1,7 @@
 <template>
   <nav class="header">
     <div class="header-logo">
-      <router-link to="/">Trelno</router-link>
+      <router-link to="/">Yongsoo's Trello</router-link>
     </div>
     <div class="header-auth">
       <a v-if="isAuth" href="" @click.prevent="logout">Logout</a>
