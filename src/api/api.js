@@ -3,7 +3,7 @@ import router from "../router/router.js";
 
 //각 페이지마다 axios를 일일이 부르는것보다도, 이렇게 라이브러리화 해좋은게 좋다.
 
-const DOMAIN = "http://192.168.10.103:8382";
+const DOMAIN = "http://smilesigma.synology.me:8382";
 const UNAUTHORIZED = 401;
 const onUnauthorized = () => {
   router.push(`/login?rPath=${encodeURIComponent(location.pathname)}`);
